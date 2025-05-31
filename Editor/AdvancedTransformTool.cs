@@ -7,6 +7,7 @@ public class AdvancedTransformTool : EditorWindow
     private Vector3 _deltaScale = Vector3.one;
     private float _uniformScale = 1.0f;
     private bool _useUniformScale = true;
+    private float _gridSize = 1.0f;
     
     [MenuItem(("Tools/AdvancedTransformTool"))]
     public static void ShowWindow()
@@ -58,6 +59,13 @@ public class AdvancedTransformTool : EditorWindow
         if (GUILayout.Button("Center Align"))
         {
             CenterAlingSelectedObjects();
+        }
+        
+        GUILayout.Label("Grid Snap", EditorStyles.boldLabel);
+        _gridSize = EditorGUILayout.FloatField("Grid Size", _gridSize);
+        if (GUILayout.Button("Snap to grid"))
+        {
+            SnapSelectedToGrid();
         }
     }
 
@@ -132,6 +140,23 @@ public class AdvancedTransformTool : EditorWindow
         foreach (Transform t in Selection.transforms)
         {
             t.position = center;
+        }
+    }
+
+    private void SnapSelectedToGrid()
+    {
+        if (Selection.transforms.Length == 0)
+        {
+            Debug.LogWarning("No objects selected");
+        }
+        Undo.RecordObjects(Selection.transforms, "Snap to Grid");
+        foreach (Transform t in Selection.transforms)
+        {
+            t.position = new Vector3(
+                Mathf.Round(t.position.x / _gridSize) * _gridSize,
+                Mathf.Round(t.position.y / _gridSize) * _gridSize,
+                Mathf.Round(t.position.z / _gridSize) * _gridSize
+                );
         }
     }
 }
